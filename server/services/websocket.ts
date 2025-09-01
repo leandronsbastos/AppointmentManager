@@ -7,13 +7,14 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 interface AuthenticatedWebSocket extends WebSocket {
   userId?: string;
   role?: string;
+  ticketId?: string;
 }
 
 export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ 
     server, 
     path: '/ws',
-    verifyClient: (info) => {
+    verifyClient: (info: any) => {
       try {
         const url = new URL(info.req.url!, `http://${info.req.headers.host}`);
         const token = url.searchParams.get('token');

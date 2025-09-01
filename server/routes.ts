@@ -15,11 +15,12 @@ const upload = multer({ dest: "uploads/" });
 
 interface AuthenticatedRequest extends Express.Request {
   user?: any;
+  headers: any;
 }
 
 // Middleware for authentication
 const authenticateToken = (req: AuthenticatedRequest, res: any, next: any) => {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers["authorization"] as string;
   const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
@@ -219,7 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await evolutionApi.sendMessage(
             ticket.contact.whatsappNumber,
             message.content,
-            message.type,
+            message.type || 'text',
             message.mediaUrl
           );
         }
@@ -239,8 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await storage.getCustomers(
         parseInt(page as string),
         parseInt(limit as string),
-        search as string,
-        segment as string
+        search as string
       );
       res.json(result);
     } catch (error) {

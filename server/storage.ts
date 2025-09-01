@@ -150,7 +150,7 @@ export class DatabaseStorage implements IStorage {
           like(customers.email, `%${search}%`),
           like(customers.document, `%${search}%`)
         )
-      );
+      )!
     }
 
     const [customerResults, totalResults] = await Promise.all([
@@ -227,17 +227,24 @@ export class DatabaseStorage implements IStorage {
     return ticket;
   }
 
-  async getTickets(filters = {}): Promise<{ tickets: any[]; total: number }> {
+  async getTickets(filters: {
+    status?: string;
+    priority?: string;
+    assignedAgentId?: string;
+    customerId?: string;
+    page?: number;
+    limit?: number;
+  } = {}): Promise<{ tickets: any[]; total: number }> {
     const { status, priority, assignedAgentId, customerId, page = 1, limit = 20 } = filters;
     const offset = (page - 1) * limit;
 
-    let whereConditions = [];
+    let whereConditions: any[] = [];
     if (status) whereConditions.push(eq(tickets.status, status as any));
     if (priority) whereConditions.push(eq(tickets.priority, priority as any));
     if (assignedAgentId) whereConditions.push(eq(tickets.assignedAgentId, assignedAgentId));
     if (customerId) whereConditions.push(eq(tickets.customerId, customerId));
 
-    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : sql`1=1`;
 
     const [ticketResults, totalResults] = await Promise.all([
       db
